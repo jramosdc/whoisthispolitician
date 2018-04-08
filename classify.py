@@ -1,6 +1,8 @@
 import tensorflow as tf
 import sys
 import numpy as np
+from PIL import Image
+
 import cv2
 import os, os.path
 
@@ -46,7 +48,6 @@ for (x,y,w,h) in faces:
         #cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
     roi_gray = gray[y:y+h, x:x+w]
     roi_color = img[y:y+h, x:x+w]
-
         #eyes = eye_cascade.detectMultiScale(roi_gray)
     eyes = face_cascade.detectMultiScale(roi_gray, scaleFactor=1.3, minNeighbors=3, minSize=(5, 5), flags = cv2.CASCADE_SCALE_IMAGE )
     eyesn = 0
@@ -60,21 +61,26 @@ for (x,y,w,h) in faces:
         face_with_eyes_detected = 1
         #cv2.imshow('img',imgCrop)
     if face_with_eyes_detected > 0:
-        cv2.imwrite('test.jpg', imgCrop)
+        cv2.imwrite('face'+str(nface_within_pic)+'.jpg', imgCrop)
         print("Image has been processed and cropped")
         nface_within_pic += 1
         nfaces_detected += 1
 
 
-##CROPPING ENDS
+##CROPPING ENDSL 
 
 
- 
+#CHOOSE BIGGEST FACE
 
-
+filenames= ['face%d.jpg'%(i,) for i in range(nfaces_detected)]
+sizes = [Image.open(f, 'r').size for f in filenames]
+largest= max(sizes)
+index= sizes.index(largest)
+imagefile= filenames[index]
+print(imagefile+ " is the largest face, so we will id it.")
 
 #bilddatei readen
-image_data = tf.gfile.FastGFile("test.jpg", 'rb').read()
+image_data = tf.gfile.FastGFile(imagefile, 'rb').read()
 
 # holt labels aus file in array 
 label_lines = [line.rstrip() for line 
@@ -106,4 +112,4 @@ with tf.Session() as sess:
     for node_id in top_k:
         human_string = label_lines[node_id]
         score = predictions[0][node_id]
-        print('%s (score = %.5f)' % (human_string, score))
+        print('%s (score = %.2f)' % (human_string, score))

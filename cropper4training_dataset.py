@@ -73,6 +73,6 @@ for pic in range(1, (numPics+1)):
         break
 
 print("All "+str(numPics+1)+" images have been processed with " + str(nfaces_detected) + " faces detected and saved.")
-print (numPics)
+
 
 cv2.destroyAllWindows()
